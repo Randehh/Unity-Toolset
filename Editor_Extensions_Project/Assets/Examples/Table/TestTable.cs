@@ -23,12 +23,12 @@ namespace Rondo.Editor.Table.Example {
             window.FileLocation = "Data/Sample_Data_Table";
 
             //Set editable fields with TableColumns
-            window.SetEditableFields(
+            /*window.SetEditableFields(
                 new TableColumn("fileName", 150),
                 new TableColumn("sprite", 150),
                 new TableColumn("health", 50),
                 new TableColumn("movespeed", 50),
-                new TableColumn("mana", 50));
+                new TableColumn("mana", 50));*/
 
             //Load all assets now that we set all the options
             window.AssetManager.LoadAssets();

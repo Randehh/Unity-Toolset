@@ -31,9 +31,7 @@ namespace Rondo.Editor.Inspector {
         //Animation
         private Dictionary<T, AnimBool> fadeGroupValues = new Dictionary<T, AnimBool>();
 
-        //Clear warning and deleting
-        private bool showClearWarning = false;
-        private AnimBool clearFadeGroup = new AnimBool(false);
+        //Clear deleting
         private T toDelete = null;
 
         //Actions
@@ -180,6 +178,23 @@ namespace Rondo.Editor.Inspector {
 
         #region EDITOR OPTIONS
 
+        public void SetEditableFields(List<string> fields) {
+            string nameField = "";
+            List<string> otherFields = new List<string>();
+
+            int i = 0;
+            foreach (string field in fields) {
+                if (i == 0) {
+                    nameField = field;
+                } else {
+                    otherFields.Add(field);
+                }
+                i++;
+            }
+
+            SetEditableFields(nameField, otherFields.ToArray());
+        }
+
         //Set the editable fields we want to use later
         protected void SetEditableFields(string nameField, params string[] editFields) {
             toEdit.Clear();
@@ -187,7 +202,6 @@ namespace Rondo.Editor.Inspector {
 
             this.nameField = nameField;
         }
-
         #endregion
 
     }

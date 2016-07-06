@@ -19,11 +19,11 @@ namespace Rondo.Editor.Inspector.Example {
             FileLocation = "Data/Sample_Data_Inspector";
 
             //Set editable fields
-            SetEditableFields(
+            /*SetEditableFields(
                 "fileName",
                 "sprite",
                 "health",
-                "movespeed");
+                "movespeed");*/
 
             //Load assets after setting all fields
             Assets = AssetManager.LoadAssets();

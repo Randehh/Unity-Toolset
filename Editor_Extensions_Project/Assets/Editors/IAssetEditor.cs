@@ -24,6 +24,7 @@ namespace Rondo.Editor {
 
         //Functions
         void DrawAsset(T asset, int displayNumber);
+        void SetEditableFields(List<string> fields);
 
     }
 }

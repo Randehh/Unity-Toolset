@@ -2,6 +2,8 @@
 using System.Collections;
 using UnityEditor;
 using UnityEditor.AnimatedValues;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace Rondo.Editor {
     public class AssetEditorUtils<T>
@@ -9,6 +11,7 @@ namespace Rondo.Editor {
 
         //Target
         private IAssetEditor<T> target;
+        private List<string> fields = new List<string>();
 
         //Clear warning
         private bool showClearWarning = false;
@@ -20,6 +23,12 @@ namespace Rondo.Editor {
 
         public AssetEditorUtils(IAssetEditor<T> target) {
             this.target = target;
+
+            foreach(FieldInfo field in typeof(T).GetFields()) {
+                fields.Add(field.Name);
+            }
+
+            target.SetEditableFields(fields);
         }
 
         //Draws the general information and controls of the editor

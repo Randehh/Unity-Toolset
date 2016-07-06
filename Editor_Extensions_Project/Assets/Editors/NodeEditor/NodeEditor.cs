@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEditor;
 using UnityEngine;
@@ -75,7 +76,6 @@ namespace Rondo.Editor.NodeEditor {
             }
             GUILayout.BeginArea(r, "", selectionStyle);
             GUILayout.EndArea();
-            Repaint();
         }
 
         #region Input
@@ -102,7 +102,6 @@ namespace Rondo.Editor.NodeEditor {
                     foreach (BaseNode n in state.selectedNodes) {
                         n.Move(e.delta, e.shift);
                     }
-                    Repaint();
                 }else if (state.isDraggingHandle) {
                     state.selectedHandle.Move(state.mousePos);
                 }
@@ -139,20 +138,21 @@ namespace Rondo.Editor.NodeEditor {
                     state.isDraggingWindow = true;
                 }
             } else if (e.type == EventType.MouseUp) {
-                if (!state.isDraggingWindow && !state.isDraggingHandle) {
-                    if (state.selectedNodes.Count == 1) {
-                        //Single node right click
-                        GetContextMenu(state.selectedNodes[0]).ShowAsContext();
-                    } else if (state.selectedNodes.Count >= 2) {
-                        //Multi select, handle as single for now...
-                        GetContextMenu(state.mouseOverNode).ShowAsContext();
-                    } else if(state.selectedHandle != null) {
-                        GetContextMenu(state.mouseOverHandle).ShowAsContext();
-                    }
-                }
 
                 //Reset
                 state.isDraggingWindow = false;
+            } else if(e.type == EventType.ContextClick) {
+                if (state.selectedNodes.Count == 1) {
+                    //Single node right click
+                    GetContextMenu(state.selectedNodes[0]).ShowAsContext();
+                } else if (state.selectedNodes.Count >= 2) {
+                    //Multi select, handle as single for now...
+                    GetContextMenu(state.mouseOverNode).ShowAsContext();
+                } else if (state.selectedHandle != null) {
+                    GetContextMenu(state.mouseOverHandle).ShowAsContext();
+                } else {
+                    GetContextMenu(null).ShowAsContext();
+                }
             }
         }
         #endregion Input
@@ -162,28 +162,45 @@ namespace Rondo.Editor.NodeEditor {
         /// </summary>
         /// <param name="n"></param>
         /// <returns></returns>
-        public virtual GenericMenu GetContextMenu(BaseNode node) {
+        public virtual GenericMenu GetContextMenu(object obj) {
             GenericMenu menu = new GenericMenu();
+
+            if (obj == null) {
+                foreach(Type t in GetAllNodeTypes()) {
+                    menu.AddItem(new GUIContent("Create node.../" + t.Name), false, AddNewNode);
+                }
+            }else {
+                //menu.AddItem(new GUIContent("Remove node"), false, RemoveNode, (BaseNode)obj);
+            }
             return menu;
         }
 
         /// <summary>
-        /// Gets the context menu of the current mouse over handle. If no handle is moused over, parameter will be null
+        /// Create a new node
         /// </summary>
-        /// <param name="handle"></param>
         /// <returns></returns>
-        public virtual GenericMenu GetContextMenu(NodeHandle handle) {
-            GenericMenu menu = new GenericMenu();
-            return menu;
+        public virtual T CreateNode<T>()
+            where T : BaseNode {
+            T node = default(T);
+            node.rect = new Rect(state.mousePos, new Vector2(200, 200));
+            return node;
+        }
+
+        /// <summary>
+        /// Create a new node and add it to the editor
+        /// </summary>
+        public void AddNewNode() {
+            AddNode(CreateNode<BaseNode>());
         }
 
         /// <summary>
         /// Add a node to the editor
         /// </summary>
-        /// <param name="node"></param>
-        public virtual void AddNode(BaseNode node) {
-            if (nodes.Contains(node)) return;
-            nodes.Add(node);
+        /// <param name="nodeObj"></param>
+        public virtual void AddNode(object node) {
+            BaseNode nodeObject = (BaseNode)node;
+            if (nodes.Contains(nodeObject)) return;
+            nodes.Add(nodeObject);
         }
 
         /// <summary>
@@ -210,6 +227,17 @@ namespace Rondo.Editor.NodeEditor {
             from.AddConnection(c);
             to.AddConnection(c);
             return c;
+        }
+
+        public Type[] GetAllNodeTypes() {
+            Assembly assembly = Assembly.Load(new AssemblyName("Assembly-CSharp"));
+
+            // Get all classes derived from ScriptableObject
+            Type[] nodeTypes = (from t in assembly.GetTypes()
+                                        where t.IsSubclassOf(typeof(BaseNode))
+                                        select t).ToArray();
+
+            return nodeTypes;
         }
 
         /// <summary>

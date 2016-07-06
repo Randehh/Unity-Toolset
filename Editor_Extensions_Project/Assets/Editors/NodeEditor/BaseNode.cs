@@ -6,7 +6,8 @@ using UnityEditor;
 using UnityEngine;
 
 namespace Rondo.Editor.NodeEditor {
-    public class BaseNode {
+
+    public class BaseNode : ScriptableObject {
         public Rect rect;
 
         //Connections
@@ -143,4 +144,5 @@ namespace Rondo.Editor.NodeEditor {
             return cNodes;
         }
     }
+
 }

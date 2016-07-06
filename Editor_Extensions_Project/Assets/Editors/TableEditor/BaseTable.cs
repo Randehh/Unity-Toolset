@@ -165,7 +165,25 @@ namespace Rondo.Editor.Table {
 
         #region EDITOR OPTIONS
 
-        //Set the editable fields we want to use later, also store only the strings for easy access later
+        //Called automatically, handle any interactions here
+        public void SetEditableFields(List<string> fields) {
+            TableColumn nameColumn = new TableColumn("");
+            List<TableColumn> columnFields = new List<TableColumn>();
+
+            int i = 0;
+            foreach (string field in fields) {
+                if (i == 0) {
+                    nameColumn = new TableColumn(field);
+                }else {
+                    columnFields.Add(new TableColumn(field));
+                }
+                i++;
+            }
+
+            SetEditableFields(nameColumn, columnFields.ToArray());
+        }
+
+        //Actually set the fields correctly for use
         public void SetEditableFields(TableColumn nameField, params TableColumn[] fields) {
             this.nameField = nameField;
             editableFields = new List<TableColumn>(fields);
